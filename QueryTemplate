@@ -1,0 +1,14 @@
+SELECT c.ID, x509_subjectName(c.CERTIFICATE) SUBJECT_NAME,
+		x509_notBefore(c.CERTIFICATE) NOT_BEFORE,
+		x509_notAfter(c.CERTIFICATE) NOT_AFTER,
+		c.ISSUER_CA_ID
+	FROM certificate c
+	WHERE c.ID IN (
+		SELECT DISTINCT ci.CERTIFICATE_ID
+			FROM certificate_identity ci
+			WHERE ci.ISSUER_CA_ID = $1
+				AND lower(ci.NAME_VALUE) LIKE lower($2)
+	)
+	ORDER BY NOT_BEFORE DESC
+	OFFSET 0
+	LIMIT 100;
